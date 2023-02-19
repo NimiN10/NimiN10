@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <stdlib.h>
+//definition Struct singly linked list ListNode.
+struct ListNode{
+    int val;
+    struct ListNode *next;
+};
+
+//function to calculate binary to decimal.
+int getDecimalValue(struct ListNode *head){
+int result=0; 
+  while(head!=NULL){
+  result = (result <<1) | (head->val);
+  head=head->next;
+  }
+return result;    
+}
+
+
+int main()
+{
+//create new pointers to the list.    
+struct ListNode *head=NULL;
+struct ListNode *second=NULL;
+struct ListNode *third=NULL;
+struct ListNode *fourth=NULL;
+
+//memory allocation for our pointers
+head =(struct ListNode*)malloc(sizeof(struct ListNode));
+second =(struct ListNode*) malloc(sizeof(struct ListNode));
+third =(struct ListNode*) malloc(sizeof(struct ListNode));
+fourth =(struct ListNode*) malloc(sizeof(struct ListNode));
+
+//assigning values and linking to each other.
+head->val=1;
+head->next =second;
+
+second->val = 0;
+second->next =third;
+
+third->val = 1;
+third->next=fourth;
+
+fourth->val = 1;
+fourth->next=NULL;
+
+int result = getDecimalValue(head);
+
+printf("result=%d\n",result);
+   
+
+return 0;
+}

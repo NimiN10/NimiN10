@@ -1,0 +1,59 @@
+import matplotlib.pyplot as plt
+import numpy
+from scipy import signal
+import numpy as np
+from numpy import sqrt, inner, conj, angle
+from scipy.signal import hilbert
+
+def lag_finder(y1, y2, sample ,Fs):
+ n=len(y1)
+ corrreal = signal.correlate(y1, y2, mode='same')
+ delay_arr = np.linspace(-sample/2, sample/2, n)
+ delay = delay_arr[np.argmax(corrreal)]
+ print("***Correlation part***\n")
+ print('y2 is ' + str(delay) + ' samples behind 
+y1')
+ print('The time delay is:', delay / Fs)
+ print("\n")
+  print("***Correlation_lags part***\n")
+ lags = signal.correlation_lags(y1.size, y2.size, 
+mode='same')
+ lag = lags[np.argmax(corrreal)]
+ print("the lag using correlation_lags is", lag)
+ print("The calculated time delay using 
+correlation_lags is",lag/Fs)
+ print("\n")
+print("***inner product part***\n")
+y1h = hilbert(y1)
+ y2h = hilbert(y2)
+ c = inner(y1h, conj(y2h)) / sqrt(inner(y1h, 
+conj(y1h)) * inner(y2h, conj(y2h)))
+ phase_diff = angle(c)
+ print("phase_diff:", phase_diff)
+ timedelay = phase_diff / (2 * np.pi * f)
+ print("The calculated time delay using 
+inner_product is", timedelay)
+ plt.show()
+ 
+plt.figure(1)
+Fs = 1000
+f = 2
+sample = 1000
+shift = np.pi/8
+##phase(in degree) = 360*f*deltat.
+deltatsignal = shift/(2 * np.pi * f)
+print("\n")
+print('the calculated time differance between y1 and 
+y2 is ',deltatsignal)
+print("\n")
+t = np.arange(sample)
+y1 = np.sin(2 * np.pi * t * f / Fs)
+y2 = np.sin((2 * np.pi * t * f / Fs)+(shift))
+plt.plot(t, y1)
+plt.plot(t, y2)
+plt.grid()
+plt.legend(['main signal','shifted signal'],loc 
+="upper right")
+plt.xlabel('Samples')
+plt.ylabel('Amplitude')
+lag_finder(y1, y2, sample, Fs)

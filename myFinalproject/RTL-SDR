@@ -1,0 +1,48 @@
+import threading, queue
+from rtlsdr import RtlSdr
+import numpy as np
+
+numofsamples = 512
+
+q0 = queue.Queue()
+q1 = queue.Queue()
+q2 = queue.Queue()
+
+def getData(sdrnum, q):
+ sdr = RtlSdr(sdrnum)
+ sdr.sample_rate = 2.4e6
+ sdr.center_freq = 2440e6
+ sdr.gain = 40
+ samples = sdr.read_samples(numofsamples)
+ q.put(samples)
+ q.task_done()
+
+device_index0 = 0
+device_index1 = 1
+device_index2 = 2
+
+#1 Create new threads
+threading.Thread(target=getData(device_index0,q0), 
+daemon=True).start()
+threading.Thread(target=getData(device_index1,q1), 
+daemon=True).start()
+threading.Thread(target=getData(device_index2,q2), 
+daemon=True).start()
+
+q0.join()
+q1.join()
+q2.join()
+
+#Transforming queue to an array.
+y1 = np.array(numofsamples)
+y2 = np.array(numofsamples)
+y3 = np.array(numofsamples)
+
+y1 = q0.get()
+y2 = q1.get()
+y3 = q2.get()
+
+print("y1=",y1)
+print("y2=",y2)
+print("y3=",y3)
+print('All get_data completed\n')

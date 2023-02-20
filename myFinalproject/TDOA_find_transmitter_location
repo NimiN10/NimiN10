@@ -1,0 +1,139 @@
+from numpy import zeros
+import numpy as np
+from matplotlib import pyplot as plt
+from scipy.optimize import curve_fit
+from sympy import *
+
+#parameters for the approximation CONSTANTS!
+accuracy = 0.001
+scale = 10
+
+# fit function
+def function(x, a, b, c):
+
+# Parbola Fit
+ return a*(x**2)+b*x+c
+
+#function to calculate the hyperbolas formula
+def calculation(x1, y1, x2, y2, d):
+ x = np.zeros(scale*scale*scale*scale*scale*scale)
+ y = np.zeros(scale*scale*scale*scale*scale*scale)
+ k = 0
+ print ("Now processing: (", x1,",", y1,") , (", x2,",", y2,"), 
+distance=", d)
+ for i in np.arange(0, scale, 0.01):
+ for j in np.arange(0, scale, 0.01):
+ distance0 = (x1 - i) ** 2
+ distance1 = (x2 - i) ** 2
+ distance2 = (y2 - j) ** 2
+ distance3 = (y1 - j) ** 2
+ dist = (abs(distance1 + distance2) ** 0.5) -
+(abs(distance0 + distance3) ** 0.5)
+ if (abs(dist) > (d - accuracy) and abs(dist) < (d + 
+accuracy)):
+ x[k] = i
+y[k] = j
+k = k + 1
+# print('values:', i , j , dist)
+ xk = x[0:k]
+ yk = y[0:k]
+ print("value of k is:\n", k)
+ return xk, yk, k
+
+
+#beacons indexes
+beacon1x = 2
+beacon1y = 2
+beacon2x = 5
+beacon2y = 7.2
+beacon3x = 8
+beacon3y = 2
+
+# Calculating beacons 1,2S
+x12, y12, k12 = calculation(beacon1x, beacon1y, beacon2x, beacon2y, 0)
+params, covs = curve_fit(function, x12, y12)
+print("params: ", params)
+
+# print("covariance: ", covs)
+a12, b12, c12 = params[0], params[1], params[2]
+
+# Calculate Curve Fit
+x12_fit = np.arange(0, scale, 1)
+y12_fit = function(x12_fit, a12, b12, c12)
+
+# Plot Curve Fit
+# plt.plot(x12_fit, y12_fit, 'b')
+
+# Plot Original Curve
+plt.plot(x12, y12, 'b.')
+
+# Calculating beacons 1,3
+x13, y13, k13 = calculation(beacon1x, beacon1y, beacon3x, beacon3y, 0)
+params, covs = curve_fit(function, x13, y13)
+print("params: ", params)
+
+# print("covariance: ", covs)
+a13, b13, c13 = params[0], params[1], params[2]
+
+# Calculate Curve Fit
+x13_fit = np.arange(0, scale, 1)
+y13_fit = function(x13_fit, a13, b13, c13)
+
+# Plot Curve Fit
+# plt.plot(x13_fit, y13_fit, 'r')
+
+# Plot Original Curve
+plt.plot(x13, y13, 'r.')
+
+# Calculating beacons 2,3
+x23, y23, k23 = calculation(beacon2x, beacon2y, beacon3x, beacon3y, 0)
+params, covs = curve_fit(function, x23, y23)
+print("params: ", params)
+
+# print("covariance: ", covs)
+a23, b23, c23 = params[0], params[1], params[2]
+
+# Calculate Curve Fit
+x23_fit = np.arange(0, scale, 1)
+y23_fit = function(x23_fit, a23, b23, c23)
+
+# Plot Curve Fit
+# plt.plot(x23_fit, y23_fit, 'g')
+
+# Plot Original Curve
+plt.plot(x23, y23, 'g.')
+
+# Calculate Intersection
+x = symbols ('x')
+x1_loc = (solve((function(x, a12, b12, c12))-(function(x, a13, b13, 
+c13))))
+print('x1_loc length is:', len(x1_loc))
+y1_loc = function(x1_loc[0], a12, b12, c12)
+print(x1_loc[0], y1_loc)
+plt.plot(x1_loc[0], y1_loc, 'kx')
+x = symbols ('x')
+x2_loc = (solve((function(x, a12, b12, c12))-(function(x, a23, b23, 
+c23))))
+y2_loc = function(x2_loc[0], a23, b23, c23)
+print(x2_loc[0],y2_loc)
+plt.plot(x2_loc[0], y2_loc, 'kx')
+x = symbols ('x')
+x3_loc = (solve((function(x, a13, b13, c13))-(function(x, a23, b23, 
+c23))))
+y3_loc = function(x3_loc[0], a13, b13, c13)
+print(x3_loc[0],y3_loc)
+plt.plot(x3_loc[0], y3_loc, 'kx')
+plt.text(x1_loc[0] + 1, y1_loc, 'Transmiter location', fontsize=8)
+plt.plot(beacon1x, beacon1y, 'ko')
+plt.text(beacon1x, beacon1y, 'Beacon1', fontsize=8)
+plt.plot(beacon2x, beacon2y, 'ko')
+plt.text(beacon2x, beacon2y, 'Beacon2', fontsize=8)
+plt.plot(beacon3x, beacon3y, 'ko')
+plt.text(beacon3x, beacon3y, 'Beacon3', fontsize=8)
+plt.xlabel('x values')
+plt.ylabel('y values')
+plt.title('objects location')
+plt.xlim(-1, 11, 1)
+plt.ylim(-1, 11, 1)
+plt.grid(axis='both')
+plt.show()
